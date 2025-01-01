@@ -4,16 +4,173 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Weekly Journal</title>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Global Styles */
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .flex {
+            display: flex;
+        }
+
+        .min-h-screen {
+            min-height: 100vh;
+        }
+
+        .h-screen {
+            height: 100vh;
+        }
+
+        .flex-col {
+            flex-direction: column;
+        }
+
+        .flex-1 {
+            flex: 1;
+        }
+
+        .items-center {
+            align-items: center;
+        }
+
+        .justify-center {
+            justify-content: center;
+        }
+
+        .justify-between {
+            justify-content: space-between;
+        }
+
+        /* Sign In Screen */
+        #signInScreen {
+            background-color: #f9f9f9;
+        }
+
+        #signInButton {
+            padding: 12px 24px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        #signInButton:hover {
+            background-color: #0056b3;
+        }
+
+        /* Main App */
+        header {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #signOutButton {
+            padding: 8px 12px;
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        #signOutButton:hover {
+            background-color: #a71d2a;
+        }
+
+        .overflow-hidden {
+            overflow: hidden;
+        }
+
+        aside {
+            width: 18rem;
+            background-color: #ffffff;
+            padding: 20px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+        }
+
+        #currentMonth {
+            font-size: 1.25rem;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 16px;
+        }
+
+        #entriesList {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        #entriesList li {
+            padding: 12px;
+            border-bottom: 1px solid #e0e0e0;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+
+        #entriesList li:hover {
+            background-color: #f1f1f1;
+        }
+
+        textarea {
+            flex: 1;
+            padding: 16px;
+            border: 1px solid #d0d0d0;
+            border-radius: 8px;
+            resize: none;
+            outline: none;
+            font-size: 1rem;
+        }
+
+        textarea:focus {
+            border-color: #007bff;
+            box-shadow: 0px 0px 4px #007bff;
+        }
+
+        #saveButton {
+            padding: 10px 16px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            align-self: flex-end;
+        }
+
+        #saveButton:hover {
+            background-color: #0056b3;
+        }
+    </style>
 </head>
 <body>
     <div id="app">
         <!-- Sign In Screen -->
-        <div id="signInScreen" class="flex items-center justify-center min-h-screen bg-gray-50">
-            <button id="signInButton" class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2 shadow-lg">
+        <div id="signInScreen" class="flex items-center justify-center min-h-screen">
+            <button id="signInButton">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
                 Sign in with Google
             </button>
@@ -22,9 +179,9 @@
         <!-- Main App -->
         <div id="mainApp" class="hidden flex flex-col h-screen">
             <!-- Header -->
-            <header class="bg-blue-600 text-white px-5 py-3 flex justify-between items-center">
-                <div class="text-sm" id="userInfo"></div>
-                <button id="signOutButton" class="px-3 py-1.5 bg-red-500 text-white rounded hover:bg-red-600 flex items-center gap-2">
+            <header>
+                <div id="userInfo"></div>
+                <button id="signOutButton">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
                     Sign Out
                 </button>
@@ -33,9 +190,9 @@
             <!-- Main Content -->
             <div class="flex flex-1 overflow-hidden">
                 <!-- Sidebar -->
-                <aside class="w-72 bg-gray-50 p-5 overflow-y-auto shadow-md">
-                    <h2 id="currentMonth" class="text-xl font-semibold text-center mb-4"></h2>
-                    <ul id="entriesList" class="space-y-1"></ul>
+                <aside>
+                    <h2 id="currentMonth"></h2>
+                    <ul id="entriesList"></ul>
                 </aside>
 
                 <!-- Editor -->
@@ -43,12 +200,8 @@
                     <textarea
                         id="journalEditor"
                         placeholder="Write your journal entry here..."
-                        class="flex-1 p-4 border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
                     ></textarea>
-                    <button
-                        id="saveButton"
-                        class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 flex items-center gap-2 self-end"
-                    >
+                    <button id="saveButton">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
                         Save Entry
                     </button>
@@ -58,7 +211,6 @@
     </div>
 
     <script>
-        // Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyB00L-6PsCK5LMAVbUPXgNNF0BywlZKqwk",
             authDomain: "weekly-journal-9df9c.firebaseapp.com",
@@ -68,24 +220,24 @@
             appId: "1:267644429656:web:8a5b8a73960f9adf5af12d"
         };
 
-        // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
-        
+
+        const signInScreen = document.getElementById('signInScreen');
+        const mainApp = document.getElementById('mainApp');
+        const signInButton = document.getElementById('signInButton');
+        const signOutButton = document.getElementById('signOutButton');
+        const userInfo = document.getElementById('userInfo');
+        const entriesList = document.getElementById('entriesList');
+        const journalEditor = document.getElementById('journalEditor');
+        const saveButton = document.getElementById('saveButton');
+        const currentMonth = document.getElementById('currentMonth');
+
         let currentUser = null;
         let currentEntry = null;
 
-        // DOM Elements
-        const signInScreen = document.getElementById('signInScreen');
-        const mainApp = document.getElementById('mainApp');
-        const userInfo = document.getElementById('userInfo');
-        const currentMonth = document.getElementById('currentMonth');
-        const entriesList = document.getElementById('entriesList');
-        const journalEditor = document.getElementById('journalEditor');
-
-        // Auth state observer
-        auth.onAuthStateChanged((user) => {
+        auth.onAuthStateChanged(user => {
             currentUser = user;
             if (user) {
                 signInScreen.classList.add('hidden');
@@ -95,68 +247,63 @@
             } else {
                 signInScreen.classList.remove('hidden');
                 mainApp.classList.add('hidden');
-                entriesList.innerHTML = '';
+                userInfo.textContent = '';
                 journalEditor.value = '';
+                entriesList.innerHTML = '';
             }
         });
 
-        // Get week number
-        function getWeekNumber(d) {
-            const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
-            date.setUTCDate(date.getUTCDate() + 4 - (date.getUTCDay() || 7));
-            const yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
-            return Math.ceil((((date.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
+        function getWeekNumber(date) {
+            const d = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+            const dayNum = d.getDay() || 7;
+            d.setDate(d.getDate() + 4 - dayNum);
+            const yearStart = new Date(Date.UTC(d.getFullYear(), 0, 1));
+            return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
         }
 
-        // Load entries
         async function loadEntries() {
             if (!currentUser) return;
-
             const now = new Date();
             const year = now.getFullYear();
-            const month = now.toLocaleString('default', { month: 'long' });
-            currentMonth.textContent = month;
+            const monthName = now.toLocaleString('default', { month: 'long' });
 
-            const entriesRef = db.collection('users').doc(currentUser.uid).collection('entries');
-            const snapshot = await entriesRef
-                .where('year', '==', year)
-                .where('month', '==', month)
-                .get();
+            currentMonth.textContent = monthName;
 
-            entriesList.innerHTML = '';
-            snapshot.forEach(doc => {
-                const entry = doc.data();
-                const li = document.createElement('li');
-                li.className = 'p-3 border-b border-gray-200 cursor-pointer hover:bg-gray-100 rounded transition-colors';
-                li.innerHTML = `
-                    <div class="font-medium">Week ${entry.week}</div>
-                    <p class="text-sm text-gray-600 truncate">${entry.notes}</p>
-                `;
-                li.onclick = () => selectEntry({ id: doc.id, ...entry });
-                entriesList.appendChild(li);
-            });
+            try {
+                const snapshot = await db.collection('users').doc(currentUser.uid)
+                    .collection('entries').where('year', '==', year)
+                    .where('month', '==', monthName).get();
+
+                entriesList.innerHTML = '';
+                snapshot.forEach(doc => {
+                    const entry = doc.data();
+                    const li = document.createElement('li');
+                    li.textContent = `Week ${entry.week}: ${entry.notes}`;
+                    li.addEventListener('click', () => selectEntry(doc.id, entry));
+                    entriesList.appendChild(li);
+                });
+            } catch (error) {
+                console.error('Error loading entries:', error);
+            }
         }
 
-        // Select entry
-        function selectEntry(entry) {
-            currentEntry = entry;
+        function selectEntry(id, entry) {
+            currentEntry = { id, ...entry };
             journalEditor.value = entry.notes;
         }
 
-        // Save entry
         async function saveEntry() {
             if (!currentUser) return;
-
             const now = new Date();
-            const notes = journalEditor.value;
             const year = now.getFullYear();
-            const month = now.toLocaleString('default', { month: 'long' });
+            const monthName = now.toLocaleString('default', { month: 'long' });
             const week = getWeekNumber(now);
+            const notes = journalEditor.value;
 
             const entryData = {
                 notes,
                 year,
-                month,
+                month: monthName,
                 week,
                 updatedAt: new Date().toISOString()
             };
@@ -164,37 +311,30 @@
             try {
                 if (currentEntry) {
                     await db.collection('users').doc(currentUser.uid)
-                        .collection('entries').doc(currentEntry.id)
-                        .update(entryData);
+                        .collection('entries').doc(currentEntry.id).update(entryData);
                 } else {
                     await db.collection('users').doc(currentUser.uid)
-                        .collection('entries').add({
-                            ...entryData,
-                            createdAt: new Date().toISOString()
-                        });
+                        .collection('entries').add({ ...entryData, createdAt: new Date().toISOString() });
                 }
 
-                await loadEntries();
-                currentEntry = null;
                 journalEditor.value = '';
-                alert('Entry saved successfully!');
+                currentEntry = null;
+                loadEntries();
             } catch (error) {
                 console.error('Error saving entry:', error);
-                alert('Failed to save entry');
             }
         }
 
-        // Event Listeners
-        document.getElementById('signInButton').onclick = () => {
+        signInButton.addEventListener('click', () => {
             const provider = new firebase.auth.GoogleAuthProvider();
             auth.signInWithPopup(provider);
-        };
+        });
 
-        document.getElementById('signOutButton').onclick = () => {
+        signOutButton.addEventListener('click', () => {
             auth.signOut();
-        };
+        });
 
-        document.getElementById('saveButton').onclick = saveEntry;
+        saveButton.addEventListener('click', saveEntry);
     </script>
 </body>
 </html>
